@@ -1,0 +1,16 @@
+{
+    "name": "spirv_cross",
+    "authors": [
+        "Remi Thebault"
+    ],
+    "description": "Bindings to Khronos' SPIRV-Cross",
+    "copyright": "Copyright © 2018, Remi Thebault",
+    "license": "MIT",
+    "preGenerateCommands-posix": [
+        "$PACKAGE_DIR/scripts/build_cpp.sh"
+    ],
+    "dflags-posix": [
+        "$PACKAGE_DIR/libspirv_cross_cpp.a"
+    ],
+    "libs": [ "stdc++" ]
+}

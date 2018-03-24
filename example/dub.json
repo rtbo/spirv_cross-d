@@ -1,0 +1,12 @@
+{
+	"name": "spirv_cross_example",
+	"authors": [
+		"Remi Thebault"
+	],
+	"description": "spirv_cross-d example",
+	"copyright": "Copyright © 2018, Remi Thebault",
+	"license": "MIT",
+	"dependencies": {
+		"spirv_cross": { "path": ".." }
+	}
+}
