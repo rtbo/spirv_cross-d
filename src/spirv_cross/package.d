@@ -178,25 +178,25 @@ struct SpvHlslCompilerOptions
 
 struct SpvMslVertexAttr
 {
-	uint location = 0;
-	uint msl_buffer = 0;
-	uint msl_offset = 0;
-	uint msl_stride = 0;
-	bool per_instance = false;
-	bool used_by_shader = false;
+    uint location = 0;
+    uint msl_buffer = 0;
+    uint msl_offset = 0;
+    uint msl_stride = 0;
+    bool per_instance = false;
+    bool used_by_shader = false;
 }
 
 struct SpvMslResourceBinding
 {
-	SpvExecutionModel stage;
-	uint desc_set = 0;
-	uint binding = 0;
+    SpvExecutionModel stage;
+    uint desc_set = 0;
+    uint binding = 0;
 
-	uint msl_buffer = 0;
-	uint msl_texture = 0;
-	uint msl_sampler = 0;
+    uint msl_buffer = 0;
+    uint msl_texture = 0;
+    uint msl_sampler = 0;
 
-	bool used_by_shader = false;
+    bool used_by_shader = false;
 }
 
 struct SpvMslCompilerOptions
@@ -212,6 +212,8 @@ private void spvEnforce(SpvResult res, string msg)
     }
 }
 
+/// Abstract SPIR-V cross compiler
+/// Analyses and provides introspection into SPIR-V byte code
 abstract class SpvCompiler
 {
     import n = spirv_cross.native;
@@ -226,6 +228,8 @@ abstract class SpvCompiler
         dispose();
     }
 
+    /// Dispose native resources held by the compiler.
+    /// It is called during GC collection, but can be also called manually.
     void dispose() {
         if (_cl) {
             n.spv_compiler_delete(_cl);
@@ -233,6 +237,11 @@ abstract class SpvCompiler
         }
     }
 
+    /// Gets the value for decorations which take arguments.
+    /// If the decoration is a boolean (i.e. spv::DecorationNonWritable),
+    /// 1 will be returned.
+    /// If decoration doesn't exist or decoration is not recognized,
+    /// 0 will be returned.
     uint getDecoration(in uint id, in SpvDecoration decoration) const {
         uint result = void;
         string msg = void;
@@ -243,6 +252,7 @@ abstract class SpvCompiler
         return result;
     }
 
+    /// Applies a decoration to an ID. Effectively injects OpDecorate.
     void setDecoration(in uint id, in SpvDecoration decoration, in uint arg) {
         string msg = void;
         const res = n.spv_compiler_set_decoration(
@@ -386,6 +396,7 @@ abstract class SpvCompiler
     }
 }
 
+/// Compiler that produces Glsl code
 class SpvCompilerGlsl : SpvCompiler
 {
     import n = spirv_cross.native;
@@ -419,6 +430,7 @@ class SpvCompilerGlsl : SpvCompiler
     }
 }
 
+/// Compiler that produces Hlsl code
 class SpvCompilerHlsl : SpvCompiler
 {
     import n = spirv_cross.native;
@@ -450,6 +462,7 @@ class SpvCompilerHlsl : SpvCompiler
     }
 }
 
+/// Compiler that produces Msl code
 class SpvCompilerMsl : SpvCompiler
 {
     import n = spirv_cross.native;
