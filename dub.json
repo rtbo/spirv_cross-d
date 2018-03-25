@@ -12,5 +12,12 @@
     "dflags-posix": [
         "$PACKAGE_DIR/libspirv_cross_cpp.a"
     ],
-    "libs": [ "stdc++" ]
+    "libs-posix": [ "stdc++" ],
+    "preGenerateCommands-windows-x86": [
+        "$PACKAGE_DIR/scripts/build_cpp.bat $PACKAGE_DIR x86"
+    ],
+    "preGenerateCommands-windows-x86_64": [
+        "$PACKAGE_DIR/scripts/build_cpp.bat $PACKAGE_DIR amd64"
+    ],
+    "dflags-windows": [ "$PACKAGE_DIR/spirv_cross_cpp.lib" ]
 }
