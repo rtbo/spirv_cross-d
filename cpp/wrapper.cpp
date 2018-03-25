@@ -168,7 +168,7 @@ void spv_compiler_glsl_set_options(SpvCompilerGlsl *compiler,
 SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompilerGlsl *compiler,
                                                           SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         compiler->cl()->build_combined_image_samplers();
     });
 }
@@ -287,7 +287,7 @@ SpvResult spv_compiler_get_decoration(const SpvCompiler *compiler,
                                       uint32_t *result,
                                       SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         *result = compiler->cl()->get_decoration(id, decoration);
     });
 }
@@ -298,7 +298,7 @@ SpvResult spv_compiler_set_decoration(SpvCompiler *compiler,
                                       const uint32_t argument,
                                       SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         compiler->cl()->set_decoration(id, decoration, argument);
     });
 }
@@ -307,7 +307,7 @@ SpvResult spv_compiler_get_entry_points(const SpvCompiler *compiler,
                                         SpvDArray<SpvEntryPoint> *entry_points,
                                         SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         auto const &spv_entry_point_names_and_stages = compiler->cl()->get_entry_points_and_stages();
         auto const spv_size = spv_entry_point_names_and_stages.size();
         auto const &spv_entry_points = std::make_unique<spirv_cross::SPIREntryPoint[]>(spv_size);
@@ -337,7 +337,7 @@ SpvResult spv_compiler_get_cleansed_entry_point_name(const SpvCompiler *compiler
                                                      SpvDString *compiled_entry_point_name,
                                                      SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         *compiled_entry_point_name = to_d_string(
             compiler->cl()->get_cleansed_entry_point_name(
                 std::string{original_entry_point_name.ptr, original_entry_point_name.length},
@@ -375,7 +375,7 @@ SpvResult spv_compiler_get_shader_resources(const SpvCompiler *compiler,
                                             SpvShaderResources *shader_resources,
                                             SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         auto const spv_resources = compiler->cl()->get_shader_resources();
 
         fill_resource_array(&shader_resources->uniform_buffers, spv_resources.uniform_buffers);
@@ -396,7 +396,7 @@ SpvResult spv_compiler_get_specialization_constants(const SpvCompiler *compiler,
                                                     SpvDArray<SpvSpecializationConstant> *constants,
                                                     SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         auto const spv_constants = compiler->cl()->get_specialization_constants();
         auto const spv_size = spv_constants.size();
 
@@ -416,7 +416,7 @@ SpvResult spv_compiler_set_scalar_constant(SpvCompiler *compiler,
                                            const uint64_t constant,
                                            SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         auto &spv_constant = compiler->cl()->get_constant(id);
         spv_constant.m.c[0].r[0].u64 = constant;
     });
@@ -427,7 +427,7 @@ SpvResult spv_compiler_get_type(const SpvCompiler *compiler,
                                 SpvType *spirv_type,
                                 SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         auto const &type = ((spirv_cross::Compiler *)compiler)->get_type(id);
         auto const member_types_size = type.member_types.size();
         auto const array_size = type.array.size();
@@ -466,7 +466,7 @@ SpvResult spv_compiler_get_member_name(const SpvCompiler *compiler,
                                        SpvDString *name,
                                        SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         *name = to_d_string(compiler->cl()->get_member_name(id, index));
     });
 }
@@ -478,7 +478,7 @@ SpvResult spv_compiler_get_member_decoration(const SpvCompiler *compiler,
                                              uint32_t *result,
                                              SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         *result = compiler->cl()->get_member_decoration(id, index, decoration);
     });
 }
@@ -490,7 +490,7 @@ SpvResult spv_compiler_set_member_decoration(SpvCompiler *compiler,
                                              const uint32_t argument,
                                              SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         compiler->cl()->set_member_decoration(id, index, decoration, argument);
     });
 }
@@ -500,7 +500,7 @@ SpvResult spv_compiler_get_declared_struct_size(const SpvCompiler *compiler,
                                                 size_t *result,
                                                 SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         *result = compiler->cl()->get_declared_struct_size(compiler->cl()->get_type(id));
     });
 }
@@ -511,7 +511,7 @@ SpvResult spv_compiler_get_declared_struct_member_size(const SpvCompiler *compil
                                                        size_t *result,
                                                        SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         *result = compiler->cl()->get_declared_struct_member_size(compiler->cl()->get_type(id), index);
     });
 }
@@ -522,7 +522,7 @@ SpvResult spv_compiler_rename_interface_variable(SpvCompiler *compiler,
                                                  const SpvDString name,
                                                  SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         std::vector<spirv_cross::Resource> spv_resources;
         for (size_t i = 0; i < resources.length; i++)
         {
@@ -545,7 +545,7 @@ SpvResult spv_compiler_compile(SpvCompiler *compiler,
                                SpvDString *shader,
                                SpvDString *error_msg)
 {
-    spv_handle(error_msg, [=] {
+    return spv_handle(error_msg, [=] {
         *shader = to_d_string(compiler->cl()->compile());
     });
 }
