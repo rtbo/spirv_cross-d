@@ -358,24 +358,24 @@ abstract class SpvCompiler
 
     size_t getDeclaredStructSize(in uint id)
     {
-        uint result = void;
+        size_t result = void;
         string msg = void;
         const res = n.spv_compiler_get_declared_struct_size(
             _cl, id, result, msg
         );
         spvEnforce(res, msg);
-        return cast(size_t)result;
+        return result;
     }
 
     size_t getDeclaredStructMemberSize(in uint id, in uint index)
     {
-        uint result = void;
+        size_t result = void;
         string msg = void;
         const res = n.spv_compiler_get_declared_struct_member_size(
             _cl, id, index, result, msg
         );
         spvEnforce(res, msg);
-        return cast(size_t)result;
+        return result;
     }
 
     void renameInterfaceVariable(in SpvResource[] resources, in uint location, in string name)

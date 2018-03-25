@@ -157,13 +157,13 @@ SpvResult spv_compiler_set_member_decoration(SpvCompiler *compiler,
 
 SpvResult spv_compiler_get_declared_struct_size(in SpvCompiler *compiler,
                                                 in uint id,
-                                                out uint result,
+                                                out size_t result,
                                                 out string error_msg);
 
 SpvResult spv_compiler_get_declared_struct_member_size(in SpvCompiler *compiler,
                                                        in uint id,
                                                        in uint index,
-                                                       out uint result,
+                                                       out size_t result,
                                                        out string error_msg);
 
 SpvResult spv_compiler_rename_interface_variable(SpvCompiler *compiler,

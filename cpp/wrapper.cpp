@@ -497,7 +497,7 @@ SpvResult spv_compiler_set_member_decoration(SpvCompiler *compiler,
 
 SpvResult spv_compiler_get_declared_struct_size(const SpvCompiler *compiler,
                                                 const uint32_t id,
-                                                uint32_t *result,
+                                                size_t *result,
                                                 SpvDString *error_msg)
 {
     spv_handle(error_msg, [=] {
@@ -508,7 +508,7 @@ SpvResult spv_compiler_get_declared_struct_size(const SpvCompiler *compiler,
 SpvResult spv_compiler_get_declared_struct_member_size(const SpvCompiler *compiler,
                                                        const uint32_t id,
                                                        const uint32_t index,
-                                                       uint32_t *result,
+                                                       size_t *result,
                                                        SpvDString *error_msg)
 {
     spv_handle(error_msg, [=] {
