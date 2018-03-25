@@ -136,13 +136,13 @@ inline SpvCompiler *spv_compiler_glsl_as_base(SpvCompilerGlsl *compiler) {
 }
 
 
-void svp_compiler_glsl_get_options(const SpvCompilerGlsl *compiler,
+void spv_compiler_glsl_get_options(const SpvCompilerGlsl *compiler,
                                    SpvGlslCompilerOptions *options);
 
 void spv_compiler_glsl_set_options(SpvCompilerGlsl *compiler,
                                    const SpvGlslCompilerOptions *options);
 
-SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompiler *compiler,
+SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompilerGlsl *compiler,
                                                           SpvDString *error_msg);
 
 
@@ -155,7 +155,7 @@ inline SpvCompiler *spv_compiler_hlsl_as_base(SpvCompilerHlsl *compiler) {
 }
 
 
-void svp_compiler_hlsl_get_options(const SpvCompilerHlsl *compiler,
+void spv_compiler_hlsl_get_options(const SpvCompilerHlsl *compiler,
                                     SpvHlslCompilerOptions *options);
 void spv_compiler_hlsl_set_options(SpvCompilerHlsl *compiler,
                                    const SpvHlslCompilerOptions *options);
@@ -171,7 +171,7 @@ inline SpvCompiler *spv_compiler_msl_as_base(SpvCompilerMsl *compiler) {
     return reinterpret_cast<SpvCompiler*>(compiler);
 }
 
-void svp_compiler_msl_get_options(const SpvCompilerMsl *compiler,
+void spv_compiler_msl_get_options(const SpvCompilerMsl *compiler,
                                   SpvMslCompilerOptions *options);
 
 void spv_compiler_msl_set_options(SpvCompilerMsl *compiler,
@@ -213,7 +213,7 @@ SpvResult spv_compiler_get_entry_points(const SpvCompiler *compiler,
                                         SpvDString *error_msg);
 
 SpvResult spv_compiler_get_cleansed_entry_point_name(const SpvCompiler *compiler,
-                                                     const char *original_entry_point_name,
+                                                     const SpvDString original_entry_point_name,
                                                      const spv::ExecutionModel execution_model,
                                                      SpvDString *compiled_entry_point_name,
                                                      SpvDString *error_msg);
@@ -268,9 +268,9 @@ SpvResult spv_compiler_get_declared_struct_member_size(const SpvCompiler *compil
                                                        SpvDString *error_msg);
 
 SpvResult spv_compiler_rename_interface_variable(SpvCompiler *compiler,
-                                                 SpvDArray<const SpvResource> resources,
-                                                 uint32_t location,
-                                                 const char *name,
+                                                 const SpvDArray<const SpvResource> resources,
+                                                 const uint32_t location,
+                                                 const SpvDString name,
                                                  SpvDString *error_msg);
 
 SpvResult spv_compiler_compile(SpvCompiler *compiler,

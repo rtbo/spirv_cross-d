@@ -33,13 +33,13 @@ SpvCompiler *spv_compiler_glsl_as_base(SpvCompilerGlsl *compiler) {
 }
 
 
-void spv_compiler_glsl_get_options(const SpvCompilerGlsl *compiler,
+void spv_compiler_glsl_get_options(in SpvCompilerGlsl *compiler,
                                    SpvGlslCompilerOptions *options);
 
 void spv_compiler_glsl_set_options(SpvCompilerGlsl *compiler,
                                    in SpvGlslCompilerOptions *options);
 
-SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompiler *compiler,
+SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompilerGlsl *compiler,
                                                           out string error_msg);
 
 
@@ -52,10 +52,10 @@ SpvCompiler *spv_compiler_hlsl_as_base(SpvCompilerHlsl *compiler) {
 }
 
 
-void svp_compiler_hlsl_get_options(const SpvCompilerHlsl *compiler,
+void spv_compiler_hlsl_get_options(in SpvCompilerHlsl *compiler,
                                     SpvHlslCompilerOptions *options);
 void spv_compiler_hlsl_set_options(SpvCompilerHlsl *compiler,
-                                   const SpvHlslCompilerOptions *options);
+                                   in SpvHlslCompilerOptions *options);
 
 void spv_compiler_hlsl_set_root_constant_layout(SpvCompilerHlsl *compiler,
                                                 in SpvHlslRootConstant[] constants);
@@ -68,11 +68,11 @@ SpvCompiler *spv_compiler_msl_as_base(SpvCompilerMsl *compiler) {
     return cast(SpvCompiler*)compiler;
 }
 
-void svp_compiler_msl_get_options(const SpvCompilerMsl *compiler,
+void spv_compiler_msl_get_options(in SpvCompilerMsl *compiler,
                                   SpvMslCompilerOptions *options);
 
 void spv_compiler_msl_set_options(SpvCompilerMsl *compiler,
-                                  const SpvMslCompilerOptions *options);
+                                  in SpvMslCompilerOptions *options);
 
 SpvResult spv_compiler_msl_compile(SpvCompilerMsl *compiler,
                                    in SpvMslVertexAttr[] vat_overrides,
@@ -110,16 +110,16 @@ SpvResult spv_compiler_get_entry_points(in SpvCompiler *compiler,
                                         out string error_msg);
 
 SpvResult spv_compiler_get_cleansed_entry_point_name(in SpvCompiler *compiler,
-                                                     const(char)* original_entry_point_name,
+                                                     in string original_entry_point_name,
                                                      in SpvExecutionModel execution_model,
                                                      out string compiled_entry_point_name,
                                                      out string error_msg);
 
-SpvResult spv_compiler_get_shader_resources(const SpvCompiler *compiler,
+SpvResult spv_compiler_get_shader_resources(in SpvCompiler *compiler,
                                             out SpvShaderResources shader_resources,
                                             out string error_msg);
 
-SpvResult spv_compiler_get_specialization_constants(const SpvCompiler *compiler,
+SpvResult spv_compiler_get_specialization_constants(in SpvCompiler *compiler,
                                                     out SpvSpecializationConstant[] constants,
                                                     out string error_msg);
 
@@ -167,7 +167,7 @@ SpvResult spv_compiler_get_declared_struct_member_size(in SpvCompiler *compiler,
 SpvResult spv_compiler_rename_interface_variable(SpvCompiler *compiler,
                                                  in SpvResource[] resources,
                                                  in uint location,
-                                                 const(char)* name,
+                                                 in string name,
                                                  out string error_msg);
 
 SpvResult spv_compiler_compile(SpvCompiler *compiler,

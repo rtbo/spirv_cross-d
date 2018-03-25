@@ -165,7 +165,7 @@ void spv_compiler_glsl_set_options(SpvCompilerGlsl *compiler,
     compiler->cl()->set_common_options(glslOptions);
 }
 
-SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompiler *compiler,
+SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompilerGlsl *compiler,
                                                           SpvDString *error_msg)
 {
     spv_handle(error_msg, [=] {
@@ -182,7 +182,7 @@ SpvResult spv_compiler_hlsl_new(SpvDArray<const uint32_t> ir,
     });
 }
 
-void svp_compiler_hlsl_get_options(const SpvCompilerHlsl *compiler,
+void spv_compiler_hlsl_get_options(const SpvCompilerHlsl *compiler,
                                    SpvHlslCompilerOptions *options)
 {
     auto common_options = compiler->cl()->get_common_options();
@@ -235,7 +235,7 @@ SpvResult spv_compiler_msl_new(SpvDArray<const uint32_t> ir,
     });
 }
 
-void svp_compiler_msl_get_options(const SpvCompilerMsl *compiler,
+void spv_compiler_msl_get_options(const SpvCompilerMsl *compiler,
                                   SpvMslCompilerOptions *options)
 {
     auto common_options = compiler->cl()->get_common_options();
@@ -332,7 +332,7 @@ SpvResult spv_compiler_get_entry_points(const SpvCompiler *compiler,
 }
 
 SpvResult spv_compiler_get_cleansed_entry_point_name(const SpvCompiler *compiler,
-                                                     const char *original_entry_point_name,
+                                                     const SpvDString original_entry_point_name,
                                                      const spv::ExecutionModel execution_model,
                                                      SpvDString *compiled_entry_point_name,
                                                      SpvDString *error_msg)
@@ -340,7 +340,8 @@ SpvResult spv_compiler_get_cleansed_entry_point_name(const SpvCompiler *compiler
     spv_handle(error_msg, [=] {
         *compiled_entry_point_name = to_d_string(
             compiler->cl()->get_cleansed_entry_point_name(
-                std::string(original_entry_point_name), execution_model
+                std::string{original_entry_point_name.ptr, original_entry_point_name.length},
+                execution_model
             )
         );
     });
@@ -516,9 +517,9 @@ SpvResult spv_compiler_get_declared_struct_member_size(const SpvCompiler *compil
 }
 
 SpvResult spv_compiler_rename_interface_variable(SpvCompiler *compiler,
-                                                 SpvDArray<const SpvResource> resources,
-                                                 uint32_t location,
-                                                 const char *name,
+                                                 const SpvDArray<const SpvResource> resources,
+                                                 const uint32_t location,
+                                                 const SpvDString name,
                                                  SpvDString *error_msg)
 {
     spv_handle(error_msg, [=] {
@@ -534,9 +535,9 @@ SpvResult spv_compiler_rename_interface_variable(SpvCompiler *compiler,
             spv_resource.name = spv_name;
             spv_resources.push_back(spv_resource);
         }
-
-        std::string new_name(name);
-        spirv_cross_util::rename_interface_variable(*compiler->cl(), spv_resources, location, new_name);
+        spirv_cross_util::rename_interface_variable(
+            *compiler->cl(), spv_resources, location, std::string{name.ptr, name.length}
+        );
     });
 }
 
