@@ -9,6 +9,8 @@ void *spv_d_gc_alloc(size_t sz) {
     return GC.malloc(sz);
 }
 
+package:
+
 struct SpvCompiler;
 struct SpvCompilerGlsl;
 struct SpvCompilerMsl;
