@@ -8,8 +8,9 @@
     "license": "MIT",
 
     "preGenerateCommands-posix": [ "$PACKAGE_DIR/scripts/build_cpp.sh" ],
-    "sourceFiles-posix": [ "$PACKAGE_DIR/spirv_cross_cpp.a" ],
-    "dflags-posix": [ "$PACKAGE_DIR/libspirv_cross_cpp.a" ],
+    "sourceFiles-posix": [ "$PACKAGE_DIR/libspirv_cross_cpp.a" ],
+    "dflags-posix-dmd": [ "$PACKAGE_DIR/libspirv_cross_cpp.a" ],
+    "lflags-posix-ldc": [ "$PACKAGE_DIR/libspirv_cross_cpp.a" ],
     "libs-posix": [ "stdc++" ],
 
     "preGenerateCommands-windows-x86": [ "$PACKAGE_DIR/scripts/build_cpp.bat $PACKAGE_DIR x86" ],
