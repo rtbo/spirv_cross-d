@@ -15,12 +15,27 @@ BUILD_TYPE=Release
 
 PACKAGE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
 CPP_DIR=$PACKAGE_DIR/cpp
-BUILD_DIR=$PACKAGE_DIR/.dub/build/sc_cpp_$BUILD_TYPE
+LIB_DIR=$PACKAGE_DIR/lib
 
-mkdir -p $BUILD_DIR || exit 1
-cd $BUILD_DIR
 
-cmake -G $GEN -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CPP_DIR || exit 1
-cmake --build $BUILD_DIR || exit 1
+function build_sc() {
+    ARCH=$1
+    if [ $ARCH = "x86" ] ; then
+        FLAG=-m32
+    else
+        FLAG=-m64
+    fi
 
-cp $BUILD_DIR/libspirv_cross_cpp.a $PACKAGE_DIR || exit 1
+    BUILD_DIR=${PACKAGE_DIR}/build/sc_cpp_${ARCH}_${BUILD_TYPE}
+    mkdir -p $BUILD_DIR || exit 1
+    cd $BUILD_DIR
+
+    cmake -G $GEN -DCMAKE_BUILD_TYPE=$BUILD_TYPE $CPP_DIR -DCMAKE_CXX_FLAGS=$FLAG || exit 1
+    cmake --build $BUILD_DIR || exit 1
+
+    mkdir -p $LIB_DIR/posix-$ARCH
+    cp *.a $LIB_DIR/posix-$ARCH
+}
+
+build_sc x86
+build_sc x86_64
