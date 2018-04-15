@@ -10,6 +10,21 @@
 #include <cstring>
 
 
+struct SpvCommon
+{
+    SpvGcCallbacks gc_callbacks;
+
+    void *gc_alloc(const size_t sz) const {
+        return (*gc_callbacks.alloc)(sz);
+    }
+    void gc_add_root(void *ptr) const {
+        (*gc_callbacks.add_root)(ptr);
+    }
+    void gc_remove_root(void *ptr) const {
+        (*gc_callbacks.remove_root)(ptr);
+    }
+};
+
 struct SpvCompiler
 {
     const spirv_cross::Compiler *cl() const {
@@ -18,13 +33,23 @@ struct SpvCompiler
     spirv_cross::Compiler *cl() {
         return &this->_cl;
     }
+
+    const SpvCommon &common() const {
+        return _common;
+    }
+    SpvCommon &common() {
+        return _common;
+    }
+
 private:
+    SpvCommon _common;
     spirv_cross::Compiler _cl;
 };
 
 struct SpvCompilerGlsl
 {
-    SpvCompilerGlsl(SpvDArray<const uint32_t> ir) :
+    SpvCompilerGlsl(SpvDArray<const uint32_t> ir, SpvCommon common) :
+        _common{common},
         _cl {ir.ptr, ir.length}
     {}
 
@@ -35,13 +60,22 @@ struct SpvCompilerGlsl
         return &this->_cl;
     }
 
+    const SpvCommon &common() const {
+        return _common;
+    }
+    SpvCommon &common() {
+        return _common;
+    }
+
 private:
+    SpvCommon _common;
     spirv_cross::CompilerGLSL _cl;
 };
 
 struct SpvCompilerHlsl
 {
-    SpvCompilerHlsl(SpvDArray<const uint32_t> ir) :
+    SpvCompilerHlsl(SpvDArray<const uint32_t> ir, SpvCommon common) :
+        _common{common},
         _cl {ir.ptr, ir.length}
     {}
 
@@ -52,13 +86,22 @@ struct SpvCompilerHlsl
         return &this->_cl;
     }
 
+    const SpvCommon &common() const {
+        return _common;
+    }
+    SpvCommon &common() {
+        return _common;
+    }
+
 private:
+    SpvCommon _common;
     spirv_cross::CompilerHLSL _cl;
 };
 
 struct SpvCompilerMsl
 {
-    SpvCompilerMsl(SpvDArray<const uint32_t> ir) :
+    SpvCompilerMsl(SpvDArray<const uint32_t> ir, SpvCommon common) :
+        _common{common},
         _cl {ir.ptr, ir.length}
     {}
 
@@ -69,41 +112,49 @@ struct SpvCompilerMsl
         return &this->_cl;
     }
 
+    const SpvCommon &common() const {
+        return _common;
+    }
+    SpvCommon &common() {
+        return _common;
+    }
+
 private:
+    SpvCommon _common;
     spirv_cross::CompilerMSL _cl;
 };
 
-inline SpvDString to_d_string(const std::string &s) {
+
+inline SpvDString to_d_string(const SpvCommon &common, const std::string &s) {
     const auto size = s.size();
-    auto *mem = static_cast<char *>(spv_d_gc_alloc(size));
+    auto *mem = static_cast<char *>(common.gc_alloc(size));
     std::memcpy(mem, s.c_str(), size);
     return SpvDString {
         size, mem
     };
 }
 
-inline SpvDString to_d_string(const char *s) {
+inline SpvDString to_d_string(SpvCommon &common, const char *s) {
     const auto size = std::strlen(s);
-    auto *mem = static_cast<char *>(spv_d_gc_alloc(size));
+    auto *mem = static_cast<char *>(common.gc_alloc(size));
     std::memcpy(mem, s, size);
     return SpvDString {
         size, mem
     };
 }
 
-
 template<typename F>
-inline SpvResult spv_handle(SpvDString *error_msg, F lambda)
+inline SpvResult spv_handle(const SpvCommon &common, SpvDString *error_msg, F lambda)
 {
     try {
         lambda();
     }
     catch(const spirv_cross::CompilerError &ex) {
-        *error_msg = to_d_string(ex.what());
+        *error_msg = to_d_string(common, ex.what());
         return SpvResult::CompilationError;
     }
     catch(const std::exception& ex) {
-        *error_msg = to_d_string(ex.what());
+        *error_msg = to_d_string(common, ex.what());
         return SpvResult::Error;
     }
     catch(...) {
@@ -118,11 +169,13 @@ inline SpvResult spv_handle(SpvDString *error_msg, F lambda)
 extern "C" {
 
 SpvResult spv_compiler_glsl_new(SpvDArray<const uint32_t> ir,
+                                SpvGcCallbacks gc_callbacks,
                                 SpvCompilerGlsl **compiler,
                                 SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
-        *compiler = new SpvCompilerGlsl(ir);
+    auto common = SpvCommon{gc_callbacks};
+    return spv_handle(common, error_msg, [=] {
+        *compiler = new SpvCompilerGlsl{ir, common};
     });
 }
 
@@ -168,17 +221,19 @@ void spv_compiler_glsl_set_options(SpvCompilerGlsl *compiler,
 SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompilerGlsl *compiler,
                                                           SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         compiler->cl()->build_combined_image_samplers();
     });
 }
 
 SpvResult spv_compiler_hlsl_new(SpvDArray<const uint32_t> ir,
-                               SpvCompilerHlsl **compiler,
-                               SpvDString *error_msg)
+                                SpvGcCallbacks gc_callbacks,
+                                SpvCompilerHlsl **compiler,
+                                SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
-        *compiler = new SpvCompilerHlsl{ir};
+    auto common = SpvCommon{gc_callbacks};
+    return spv_handle(common, error_msg, [=] {
+        *compiler = new SpvCompilerHlsl{ir, common};
     });
 }
 
@@ -227,11 +282,13 @@ void spv_compiler_hlsl_set_root_constant_layout(SpvCompilerHlsl *compiler,
 }
 
 SpvResult spv_compiler_msl_new(SpvDArray<const uint32_t> ir,
+                               SpvGcCallbacks gc_callbacks,
                                SpvCompilerMsl **compiler,
                                SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
-        *compiler = new SpvCompilerMsl{ir};
+    auto common = SpvCommon{gc_callbacks};
+    return spv_handle(common, error_msg, [=] {
+        *compiler = new SpvCompilerMsl{ir, common};
     });
 }
 
@@ -260,7 +317,7 @@ SpvResult spv_compiler_msl_compile(SpvCompilerMsl *compiler,
                                    SpvDString *shader,
                                    SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         std::vector<spirv_cross::MSLVertexAttr> vat;
         if (vat_overrides.length) {
             vat.insert(vat.end(), vat_overrides.ptr, vat_overrides.ptr+vat_overrides.length);
@@ -271,7 +328,7 @@ SpvResult spv_compiler_msl_compile(SpvCompilerMsl *compiler,
             res.insert(res.end(), res_overrides.ptr, res_overrides.ptr+res_overrides.length);
         }
 
-        *shader = to_d_string(compiler->cl()->compile(&vat, &res));
+        *shader = to_d_string(compiler->common(), compiler->cl()->compile(&vat, &res));
     });
 }
 
@@ -287,7 +344,7 @@ SpvResult spv_compiler_get_decoration(const SpvCompiler *compiler,
                                       uint32_t *result,
                                       SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         *result = compiler->cl()->get_decoration(id, decoration);
     });
 }
@@ -298,7 +355,7 @@ SpvResult spv_compiler_set_decoration(SpvCompiler *compiler,
                                       const uint32_t argument,
                                       SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         compiler->cl()->set_decoration(id, decoration, argument);
     });
 }
@@ -307,7 +364,7 @@ SpvResult spv_compiler_get_entry_points(const SpvCompiler *compiler,
                                         SpvDArray<SpvEntryPoint> *entry_points,
                                         SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         auto const &spv_entry_point_names_and_stages = compiler->cl()->get_entry_points_and_stages();
         auto const spv_size = spv_entry_point_names_and_stages.size();
         auto const &spv_entry_points = std::make_unique<spirv_cross::SPIREntryPoint[]>(spv_size);
@@ -317,12 +374,12 @@ SpvResult spv_compiler_get_entry_points(const SpvCompiler *compiler,
             spv_entry_points[i] = compiler->cl()->get_entry_point(spv_entry_point.name, spv_entry_point.execution_model);
         }
 
-        entry_points->ptr = static_cast<SpvEntryPoint*>(spv_d_gc_alloc(spv_size * sizeof(SpvEntryPoint)));
+        entry_points->ptr = static_cast<SpvEntryPoint*>(compiler->common().gc_alloc(spv_size * sizeof(SpvEntryPoint)));
         entry_points->length = spv_size;
         for (uint32_t i = 0; i < spv_size; i++)
         {
             auto const &spv_entry_point = spv_entry_points[i];
-            entry_points->ptr[i].name = to_d_string(spv_entry_point.name);
+            entry_points->ptr[i].name = to_d_string(compiler->common(), spv_entry_point.name);
             entry_points->ptr[i].execution_model = spv_entry_point.model;
             entry_points->ptr[i].work_group_size_x = spv_entry_point.workgroup_size.x;
             entry_points->ptr[i].work_group_size_y = spv_entry_point.workgroup_size.y;
@@ -337,8 +394,9 @@ SpvResult spv_compiler_get_cleansed_entry_point_name(const SpvCompiler *compiler
                                                      SpvDString *compiled_entry_point_name,
                                                      SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         *compiled_entry_point_name = to_d_string(
+            compiler->common(),
             compiler->cl()->get_cleansed_entry_point_name(
                 std::string{original_entry_point_name.ptr, original_entry_point_name.length},
                 execution_model
@@ -347,7 +405,8 @@ SpvResult spv_compiler_get_cleansed_entry_point_name(const SpvCompiler *compiler
     });
 }
 
-static void fill_resource_array(SpvResourceDArray *resources,
+static void fill_resource_array(const SpvCompiler *cl,
+                                SpvResourceDArray *resources,
                                 const std::vector<spirv_cross::Resource> &spv_resources)
 {
     auto const spv_size = spv_resources.size();
@@ -360,14 +419,14 @@ static void fill_resource_array(SpvResourceDArray *resources,
     }
 
     resources->length = spv_size;
-    resources->ptr = static_cast<SpvResource *>(spv_d_gc_alloc(spv_size * sizeof(SpvResource)));
+    resources->ptr = static_cast<SpvResource *>(cl->common().gc_alloc(spv_size * sizeof(SpvResource)));
     for (uint32_t i = 0; i < spv_size; i++)
     {
         auto const &resource = spv_resources[i];
         resources->ptr[i].id = resource.id;
         resources->ptr[i].type_id = resource.type_id;
         resources->ptr[i].base_type_id = resource.base_type_id;
-        resources->ptr[i].name = to_d_string(resource.name);
+        resources->ptr[i].name = to_d_string(cl->common(), resource.name);
     }
 }
 
@@ -375,20 +434,20 @@ SpvResult spv_compiler_get_shader_resources(const SpvCompiler *compiler,
                                             SpvShaderResources *shader_resources,
                                             SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         auto const spv_resources = compiler->cl()->get_shader_resources();
 
-        fill_resource_array(&shader_resources->uniform_buffers, spv_resources.uniform_buffers);
-        fill_resource_array(&shader_resources->storage_buffers, spv_resources.storage_buffers);
-        fill_resource_array(&shader_resources->stage_inputs, spv_resources.stage_inputs);
-        fill_resource_array(&shader_resources->stage_outputs, spv_resources.stage_outputs);
-        fill_resource_array(&shader_resources->subpass_inputs, spv_resources.subpass_inputs);
-        fill_resource_array(&shader_resources->storage_images, spv_resources.storage_images);
-        fill_resource_array(&shader_resources->sampled_images, spv_resources.sampled_images);
-        fill_resource_array(&shader_resources->atomic_counters, spv_resources.atomic_counters);
-        fill_resource_array(&shader_resources->push_constant_buffers, spv_resources.push_constant_buffers);
-        fill_resource_array(&shader_resources->separate_images, spv_resources.separate_images);
-        fill_resource_array(&shader_resources->separate_samplers, spv_resources.separate_samplers);
+        fill_resource_array(compiler, &shader_resources->uniform_buffers, spv_resources.uniform_buffers);
+        fill_resource_array(compiler, &shader_resources->storage_buffers, spv_resources.storage_buffers);
+        fill_resource_array(compiler, &shader_resources->stage_inputs, spv_resources.stage_inputs);
+        fill_resource_array(compiler, &shader_resources->stage_outputs, spv_resources.stage_outputs);
+        fill_resource_array(compiler, &shader_resources->subpass_inputs, spv_resources.subpass_inputs);
+        fill_resource_array(compiler, &shader_resources->storage_images, spv_resources.storage_images);
+        fill_resource_array(compiler, &shader_resources->sampled_images, spv_resources.sampled_images);
+        fill_resource_array(compiler, &shader_resources->atomic_counters, spv_resources.atomic_counters);
+        fill_resource_array(compiler, &shader_resources->push_constant_buffers, spv_resources.push_constant_buffers);
+        fill_resource_array(compiler, &shader_resources->separate_images, spv_resources.separate_images);
+        fill_resource_array(compiler, &shader_resources->separate_samplers, spv_resources.separate_samplers);
     });
 }
 
@@ -396,12 +455,14 @@ SpvResult spv_compiler_get_specialization_constants(const SpvCompiler *compiler,
                                                     SpvDArray<SpvSpecializationConstant> *constants,
                                                     SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         auto const spv_constants = compiler->cl()->get_specialization_constants();
         auto const spv_size = spv_constants.size();
 
         constants->length = spv_size;
-        constants->ptr = static_cast<SpvSpecializationConstant*>(spv_d_gc_alloc(spv_size * sizeof(SpvSpecializationConstant)));
+        constants->ptr = static_cast<SpvSpecializationConstant*>(
+            compiler->common().gc_alloc(spv_size * sizeof(SpvSpecializationConstant))
+        );
         for (uint32_t i = 0; i < spv_size; i++)
         {
             auto const &spv_constant = spv_constants[i];
@@ -416,7 +477,7 @@ SpvResult spv_compiler_set_scalar_constant(SpvCompiler *compiler,
                                            const uint64_t constant,
                                            SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         auto &spv_constant = compiler->cl()->get_constant(id);
         spv_constant.m.c[0].r[0].u64 = constant;
     });
@@ -427,7 +488,7 @@ SpvResult spv_compiler_get_type(const SpvCompiler *compiler,
                                 SpvType *spirv_type,
                                 SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         auto const &type = ((spirv_cross::Compiler *)compiler)->get_type(id);
         auto const member_types_size = type.member_types.size();
         auto const array_size = type.array.size();
@@ -438,7 +499,9 @@ SpvResult spv_compiler_get_type(const SpvCompiler *compiler,
         spirv_type->array.length = array_size;
 
         if (member_types_size > 0) {
-            auto const &member_types = static_cast<uint32_t*>(spv_d_gc_alloc(member_types_size * sizeof(uint32_t)));
+            auto const &member_types = static_cast<uint32_t*>(
+                compiler->common().gc_alloc(member_types_size * sizeof(uint32_t))
+            );
 
             for (size_t i = 0; i < member_types_size; i++) {
                 member_types[i] = type.member_types[i];
@@ -448,7 +511,9 @@ SpvResult spv_compiler_get_type(const SpvCompiler *compiler,
         }
 
         if (array_size > 0) {
-            auto const &array = static_cast<uint32_t*>(spv_d_gc_alloc(array_size * sizeof(uint32_t)));
+            auto const &array = static_cast<uint32_t*>(
+                compiler->common().gc_alloc(array_size * sizeof(uint32_t))
+            );
 
             for (size_t i = 0; i < array_size; i++)
             {
@@ -466,8 +531,8 @@ SpvResult spv_compiler_get_member_name(const SpvCompiler *compiler,
                                        SpvDString *name,
                                        SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
-        *name = to_d_string(compiler->cl()->get_member_name(id, index));
+    return spv_handle(compiler->common(), error_msg, [=] {
+        *name = to_d_string(compiler->common(), compiler->cl()->get_member_name(id, index));
     });
 }
 
@@ -478,7 +543,7 @@ SpvResult spv_compiler_get_member_decoration(const SpvCompiler *compiler,
                                              uint32_t *result,
                                              SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         *result = compiler->cl()->get_member_decoration(id, index, decoration);
     });
 }
@@ -490,7 +555,7 @@ SpvResult spv_compiler_set_member_decoration(SpvCompiler *compiler,
                                              const uint32_t argument,
                                              SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         compiler->cl()->set_member_decoration(id, index, decoration, argument);
     });
 }
@@ -500,7 +565,7 @@ SpvResult spv_compiler_get_declared_struct_size(const SpvCompiler *compiler,
                                                 size_t *result,
                                                 SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         *result = compiler->cl()->get_declared_struct_size(compiler->cl()->get_type(id));
     });
 }
@@ -511,7 +576,7 @@ SpvResult spv_compiler_get_declared_struct_member_size(const SpvCompiler *compil
                                                        size_t *result,
                                                        SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         *result = compiler->cl()->get_declared_struct_member_size(compiler->cl()->get_type(id), index);
     });
 }
@@ -522,7 +587,7 @@ SpvResult spv_compiler_rename_interface_variable(SpvCompiler *compiler,
                                                  const SpvDString name,
                                                  SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
+    return spv_handle(compiler->common(), error_msg, [=] {
         std::vector<spirv_cross::Resource> spv_resources;
         for (size_t i = 0; i < resources.length; i++)
         {
@@ -545,8 +610,8 @@ SpvResult spv_compiler_compile(SpvCompiler *compiler,
                                SpvDString *shader,
                                SpvDString *error_msg)
 {
-    return spv_handle(error_msg, [=] {
-        *shader = to_d_string(compiler->cl()->compile());
+    return spv_handle(compiler->common(), error_msg, [=] {
+        *shader = to_d_string(compiler->common(), compiler->cl()->compile());
     });
 }
 

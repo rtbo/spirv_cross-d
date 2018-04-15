@@ -1,21 +1,44 @@
 module spirv_cross.native;
 
+package:
+
 import spirv_cross;
 
 extern(C) nothrow:
 
-void *spv_d_gc_alloc(size_t sz) {
+void *spv_d_gc_alloc(in size_t sz) {
     import core.memory : GC;
     return GC.malloc(sz);
 }
 
-package:
+void spv_d_gc_add_root(void *ptr) {
+    import core.memory : GC;
+    GC.addRoot(ptr);
+}
+
+void spv_d_gc_remove_root(void *ptr) {
+    import core.memory : GC;
+    GC.removeRoot(ptr);
+}
 
 struct SpvCompiler;
 struct SpvCompilerGlsl;
 struct SpvCompilerMsl;
 struct SpvCompilerHlsl;
 
+struct SpvGcCallbacks
+{
+    extern(C) nothrow:
+    void* function (in size_t sz)   alloc;
+    void function (void *ptr)       add_root;
+    void function (void *ptr)       remove_root;
+}
+
+extern(D) @property auto gcCallbacks() {
+    return SpvGcCallbacks(
+        &spv_d_gc_alloc, &spv_d_gc_add_root, &spv_d_gc_remove_root
+    );
+}
 
 enum SpvResult
 {
@@ -27,6 +50,7 @@ enum SpvResult
 
 
 SpvResult spv_compiler_glsl_new(in uint[] ir,
+                                SpvGcCallbacks gc_callbacks,
                                 out SpvCompilerGlsl *compiler,
                                 out string error_msg);
 
@@ -46,6 +70,7 @@ SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompilerGlsl *compi
 
 
 SpvResult spv_compiler_hlsl_new(in uint[] ir,
+                                SpvGcCallbacks gc_callbacks,
                                 out SpvCompilerHlsl *compiler,
                                 out string error_msg);
 
@@ -63,6 +88,7 @@ void spv_compiler_hlsl_set_root_constant_layout(SpvCompilerHlsl *compiler,
                                                 in SpvHlslRootConstant[] constants);
 
 SpvResult spv_compiler_msl_new(in uint[] ir,
+                               SpvGcCallbacks gc_callbacks,
                                out SpvCompilerMsl *compiler,
                                out string error_msg);
 

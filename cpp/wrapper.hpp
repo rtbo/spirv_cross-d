@@ -19,6 +19,11 @@ struct SpvCompilerHlsl;
 
 using SpvDString = SpvDArray<const char>;
 
+struct SpvGcCallbacks {
+    void *(*alloc)(const size_t sz);
+    void (*add_root)(void *ptr);
+    void (*remove_root)(void *ptr);
+};
 
 enum class SpvResult
 {
@@ -123,11 +128,9 @@ struct SpvMslCompilerOptions
     bool vertex_invert_y;
 };
 
-// impl in D
-void *spv_d_gc_alloc(const size_t count);
-
 
 SpvResult spv_compiler_glsl_new(SpvDArray<const uint32_t> ir,
+                                SpvGcCallbacks gc_callbacks,
                                 SpvCompilerGlsl **compiler,
                                 SpvDString *error_msg);
 
@@ -147,6 +150,7 @@ SpvResult spv_compiler_glsl_build_combined_image_samplers(SpvCompilerGlsl *compi
 
 
 SpvResult spv_compiler_hlsl_new(SpvDArray<const uint32_t> ir,
+                                SpvGcCallbacks gc_callbacks,
                                 SpvCompilerHlsl **compiler,
                                 SpvDString *error_msg);
 
@@ -164,6 +168,7 @@ void spv_compiler_hlsl_set_root_constant_layout(SpvCompilerHlsl *compiler,
                                                 SpvDArray<const SpvHlslRootConstant> constants);
 
 SpvResult spv_compiler_msl_new(SpvDArray<const uint32_t> ir,
+                               SpvGcCallbacks gc_callbacks,
                                SpvCompilerMsl **compiler,
                                SpvDString *error_msg);
 

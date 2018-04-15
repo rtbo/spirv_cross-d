@@ -407,9 +407,10 @@ class SpvCompilerGlsl : SpvCompiler
     }
 
     this(in uint[] ir) {
+        import spirv_cross.native : gcCallbacks;
         n.SpvCompilerGlsl *cl;
         string msg;
-        const res = n.spv_compiler_glsl_new(ir, cl, msg);
+        const res = n.spv_compiler_glsl_new(ir, gcCallbacks, cl, msg);
         super(cast(n.SpvCompiler*)cl);
     }
 
@@ -441,9 +442,10 @@ class SpvCompilerHlsl : SpvCompiler
     }
 
     this(in uint[] ir) {
+        import spirv_cross.native : gcCallbacks;
         n.SpvCompilerHlsl *cl;
         string msg;
-        const res = n.spv_compiler_hlsl_new(ir, cl, msg);
+        const res = n.spv_compiler_hlsl_new(ir, gcCallbacks, cl, msg);
         super(cast(n.SpvCompiler*)cl);
     }
 
@@ -473,9 +475,10 @@ class SpvCompilerMsl : SpvCompiler
     }
 
     this(in uint[] ir) {
+        import spirv_cross.native : gcCallbacks;
         n.SpvCompilerMsl *cl;
         string msg;
-        const res = n.spv_compiler_msl_new(ir, cl, msg);
+        const res = n.spv_compiler_msl_new(ir, gcCallbacks, cl, msg);
         super(cast(n.SpvCompiler*)cl);
     }
 
