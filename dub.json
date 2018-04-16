@@ -6,14 +6,9 @@
     "description": "Bindings to Khronos' SPIRV-Cross",
     "copyright": "Copyright © 2018, Remi Thebault",
     "license": "MIT",
-    "targetType": "sourceLibrary",
-    "sourceFiles-posix-x86": [
-        "$PACKAGE_DIR/lib/posix-x86/libspirv_cross_cpp.a"
-    ],
-    "sourceFiles-posix-x86_64": [
-        "$PACKAGE_DIR/lib/posix-x86_64/libspirv_cross_cpp.a"
-    ],
-    "libs-posix": [ "stdc++" ],
+    "lflags-posix-x86": [ "-L$PACKAGE_DIR/lib/posix-x86" ],
+    "lflags-posix-x86_64": [ "-L$PACKAGE_DIR/lib/posix-x86_64" ],
+    "libs-posix": [ "stdc++", "spirv_cross_cpp" ],
 
     "preGenerateCommands-windows-x86": [ "$PACKAGE_DIR/scripts/build_cpp.bat $PACKAGE_DIR x86" ],
     "preGenerateCommands-windows-x86_64": [ "$PACKAGE_DIR/scripts/build_cpp.bat $PACKAGE_DIR amd64" ],
