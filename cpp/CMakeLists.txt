@@ -16,3 +16,4 @@ add_library(spirv_cross_cpp STATIC
     spirv_cross_util.cpp
     wrapper.cpp
 )
+install(TARGETS spirv_cross_cpp DESTINATION lib)
