@@ -1,4 +1,5 @@
 .dub/
 *.exe
 *.lib
+*.a
 linker_flags.txt
