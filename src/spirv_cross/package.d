@@ -75,6 +75,7 @@ struct BufferRange
     size_t range;
 }
 
+/// GLSL precision
 enum GlslPrecision
 {
     dontCare,
@@ -83,21 +84,57 @@ enum GlslPrecision
     high,
 }
 
+/// Options for the GLSL compiler
 struct ScOptionsGlsl
 {
+    /// The shading language version. Corresponds to #version $VALUE.
     uint ver = 450;
+
+    /// Emit the OpenGL ES shading language instead of desktop OpenGL.
     bool es = false;
+
+    /// Debug option to always emit temporary variables for all expressions.
     bool forceTemporary = false;
+
+    /// If true, Vulkan GLSL features are used instead of GL-compatible features.
+    /// Mostly useful for debugging SPIR-V files.
     bool vulkanSemantics = false;
+
+    /// If true, gl_PerVertex is explicitly redeclared in vertex, geometry and tessellation shaders.
+    /// The members of gl_PerVertex is determined by which built-ins are declared by the shader.
+    /// This option is ignored in ES versions, as redeclaration in ES is not required, and it depends on a different extension
+    /// (EXT_shader_io_blocks) which makes things a bit more fuzzy.
     bool separateShaderObjects = false;
+
+    /// Flattens multidimensional arrays, e.g. float foo[a][b][c] into single-dimensional arrays,
+    /// e.g. float foo[a * b * c].
+    /// This function does not change the actual SPIRType of any object.
+    /// Only the generated code, including declarations of interface variables are changed to be single array dimension.
     bool flattenMultidimensionalArrays = false;
 
-    bool vertexFixupClipspace = false;
-    bool flipVertY = false;
-    bool supportNonZeroBaseInstance = true;
+    /// For older desktop GLSL targets than version 420, the
+    /// GL_ARB_shading_language_420pack extensions is used to be able to support
+    /// layout(binding) on UBOs and samplers.
+    /// If disabled on older targets, binding decorations will be stripped.
+    bool enable420PackExtension = true;
 
-    GlslPrecision fragmentDefaultFloatPrecision = GlslPrecision.medium;
-    GlslPrecision fragmentDefaultIntPrecision = GlslPrecision.medium;
+    /// GLSL: In vertex shaders, rewrite [0, w] depth (Vulkan/D3D style) to [-w, w] depth (GL style).
+    // MSL: In vertex shaders, rewrite [-w, w] depth (GL style) to [0, w] depth.
+    // HLSL: In vertex shaders, rewrite [-w, w] depth (GL style) to [0, w] depth.
+    bool vertFixupClipspace = false;
+
+    /// Inverts gl_Position.y or equivalent.
+    bool vertFlipY = false;
+
+    /// If true, the backend will assume that InstanceIndex will need to apply
+    /// a base instance offset. Set to false if you know you will never use base instance
+    /// functionality as it might remove some internal uniforms.
+    bool vertSupportNonzeroBaseInstance = true;
+
+    /// Add precision mediump float in ES targets when emitting GLES source.
+    GlslPrecision fragDefaultFloatPrecision = GlslPrecision.medium;
+    /// Add precision highp int in ES targets when emitting GLES source.
+    GlslPrecision fragDefaultIntPrecision = GlslPrecision.medium;
 }
 
 private void scEnforce(n.ScResult res, string msg)
