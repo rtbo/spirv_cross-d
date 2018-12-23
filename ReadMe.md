@@ -18,7 +18,7 @@ void main()
 {
     auto spirv = cast(immutable(uint)[])import("shader.vert.spv");
 
-    auto cl = new SpvCompilerGlsl(spirv);
+    auto cl = new ScCompilerGlsl(spirv);
     scope(exit) cl.dispose();
 
     auto opts = cl.options;
