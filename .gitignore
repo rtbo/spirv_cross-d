@@ -3,3 +3,6 @@
 *.lib
 *.a
 linker_flags.txt
+build/
+.vscode/
+example/spirv_cross_example
