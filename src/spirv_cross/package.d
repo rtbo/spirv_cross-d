@@ -24,8 +24,8 @@ struct SPIRType;
 struct Resource
 {
     uint id;
-    uint type_id;
-    uint base_type_id;
+    uint typeId;
+    uint baseTypeId;
     string name;
 }
 
@@ -53,11 +53,11 @@ struct EntryPoint
 struct CombinedImageSampler
 {
     /// The ID of the sampler2D variable.
-    uint combined_id;
+    uint combinedId;
     /// The ID of the texture2D variable.
-    uint image_id;
+    uint imageId;
     /// The ID of the sampler variable.
-    uint sampler_id;
+    uint samplerId;
 }
 
 struct SpecializationConstant
@@ -205,7 +205,7 @@ abstract class ScCompiler
     }
 
     /// Gets the identifier (OpName) of an ID. If not defined, an empty string will be returned.
-    string get_name(uint id) const
+    string getName(uint id) const
     {
         string result;
         scEnforce(_cl, n.sc_compiler_get_name(_cl, id, result));
@@ -213,13 +213,13 @@ abstract class ScCompiler
     }
 
     /// Applies a decoration to an ID. Effectively injects OpDecorate.
-    void set_decoration(uint id, spv.Decoration decoration, uint argument = 0)
+    void setDecoration(uint id, spv.Decoration decoration, uint argument = 0)
     {
         scEnforce(_cl, n.sc_compiler_set_decoration(_cl, id, decoration, argument));
     }
 
     /// ditto
-    void set_decoration_string(uint id, spv.Decoration decoration, string argument)
+    void setDecorationString(uint id, spv.Decoration decoration, string argument)
     {
         scEnforce(_cl, n.sc_compiler_set_decoration_string(_cl, id, decoration, argument));
     }
@@ -227,7 +227,7 @@ abstract class ScCompiler
     /// Overrides the identifier OpName of an ID.
     /// Identifiers beginning with underscores or identifiers which contain double underscores
     /// are reserved by the implementation.
-    void set_name(uint id, string name)
+    void setName(uint id, string name)
     {
         scEnforce(_cl, n.sc_compiler_set_name(_cl, id, name));
     }
@@ -235,7 +235,7 @@ abstract class ScCompiler
     // const Bitset &get_decoration_bitset(uint id) const;
 
     /// Returns whether the decoration has been applied to the ID.
-    bool has_decoration(uint id, spv.Decoration decoration) const
+    bool hasDecoration(uint id, spv.Decoration decoration) const
     {
         bool result = void;
         scEnforce(_cl, n.sc_compiler_has_decoration(_cl, id, decoration, result));
@@ -247,14 +247,14 @@ abstract class ScCompiler
     /// 1 will be returned.
     /// If decoration doesn't exist or decoration is not recognized,
     /// 0 will be returned.
-    uint get_decoration(uint id, spv.Decoration decoration) const
+    uint getDecoration(uint id, spv.Decoration decoration) const
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_get_decoration(_cl, id, decoration, result));
         return result;
     }
     /// ditto
-    string get_decoration_string(uint id, spv.Decoration decoration) const
+    string getDecorationString(uint id, spv.Decoration decoration) const
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_get_decoration_string(_cl, id, decoration, result));
@@ -262,14 +262,14 @@ abstract class ScCompiler
     }
 
     /// Removes the decoration for an ID.
-    void unset_decoration(uint id, spv.Decoration decoration)
+    void unsetDecoration(uint id, spv.Decoration decoration)
     {
         scEnforce(_cl, n.sc_compiler_unset_decoration(_cl, id, decoration));
     }
 
     /// Gets the SPIR-V type associated with ID.
-    /// Mostly used with Resource::type_id and Resource::base_type_id to parse the underlying type of a resource.
-    const(SPIRType)* get_type(uint id) const
+    /// Mostly used with Resource::typeId and Resource::baseTypeId to parse the underlying type of a resource.
+    const(SPIRType)* getType(uint id) const
     {
         const(SPIRType)* result = void;
         scEnforce(_cl, n.sc_compiler_get_type(_cl, id, result));
@@ -277,33 +277,33 @@ abstract class ScCompiler
     }
 
     /// Gets the SPIR-V type of a variable.
-    const(SPIRType)* get_type_from_variable(uint id) const
+    const(SPIRType)* getTypeFromVariable(uint id) const
     {
         const(SPIRType)* result = void;
         scEnforce(_cl, n.sc_compiler_get_type_from_variable(_cl, id, result));
         return result;
     }
 
-    /// Gets the id of SPIR-V type underlying the given type_id, which might be a pointer.
-    uint get_non_pointer_type_id(uint type_id) const
+    /// Gets the id of SPIR-V type underlying the given typeId, which might be a pointer.
+    uint getNonPointerTypeId(uint typeId) const
     {
         uint result = void;
-        scEnforce(_cl, n.sc_compiler_get_non_pointer_type_id(_cl, type_id, result));
+        scEnforce(_cl, n.sc_compiler_get_non_pointer_type_id(_cl, typeId, result));
         return result;
     }
 
-    /// Gets the SPIR-V type underlying the given type_id, which might be a pointer.
-    const(SPIRType)* get_non_pointer_type(uint type_id) const
+    /// Gets the SPIR-V type underlying the given typeId, which might be a pointer.
+    const(SPIRType)* getNonPointerType(uint typeId) const
     {
         const(SPIRType)* result = void;
-        scEnforce(_cl, n.sc_compiler_get_non_pointer_type(_cl, type_id, result));
+        scEnforce(_cl, n.sc_compiler_get_non_pointer_type(_cl, typeId, result));
         return result;
     }
 
     // is_sampled_image
 
     /// Gets the underlying storage class for an OpVariable.
-    spv.StorageClass get_storage_class(uint id) const
+    spv.StorageClass getStorageClass(uint id) const
     {
         spv.StorageClass result = void;
         scEnforce(_cl, n.sc_compiler_get_storage_class(_cl, id, result));
@@ -312,7 +312,7 @@ abstract class ScCompiler
 
     /// If get_name() is an empty string, get the fallback name which will be used
     /// instead in the disassembled source.
-    string get_fallback_name(uint id) const
+    string getFallbackName(uint id) const
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_get_fallback_name(_cl, id, result));
@@ -321,7 +321,7 @@ abstract class ScCompiler
 
     /// If get_name() of a Block struct is an empty string, get the fallback name.
     /// This needs to be per-variable as multiple variables can use the same block type.
-    string get_block_fallback_name(uint id) const
+    string getBlockFallbackName(uint id) const
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_get_block_fallback_name(_cl, id, result));
@@ -330,7 +330,7 @@ abstract class ScCompiler
 
     /// Given an OpTypeStruct in ID, obtain the identifier for member number "index".
     /// This may be an empty string.
-    string get_member_name(uint id, uint index) const
+    string getMemberName(uint id, uint index) const
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_get_member_name(_cl, id, index, result));
@@ -338,14 +338,14 @@ abstract class ScCompiler
     }
 
     /// Given an OpTypeStruct in ID, obtain the OpMemberDecoration for member number "index".
-    uint get_member_decoration(uint id, uint index, spv.Decoration decoration) const
+    uint getMemberDecoration(uint id, uint index, spv.Decoration decoration) const
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_get_member_decoration(_cl, id, index, decoration, result));
         return result;
     }
     /// ditto
-    string get_member_decoration_string(uint id, uint index, spv.Decoration decoration) const
+    string getMemberDecorationString(uint id, uint index, spv.Decoration decoration) const
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_get_member_decoration_string(_cl, id,
@@ -354,14 +354,14 @@ abstract class ScCompiler
     }
 
     /// Sets the member identifier for OpTypeStruct ID, member number "index".
-    void set_member_name(uint id, uint index, string name)
+    void setMemberName(uint id, uint index, string name)
     {
         scEnforce(_cl, n.sc_compiler_set_member_name(_cl, id, index, name));
     }
 
     /// Returns the qualified member identifier for OpTypeStruct ID, member number "index",
     /// or an empty string if no qualified alias exists
-    string get_member_qualified_name(uint type_id, uint index) const
+    string getMemberQualifiedName(uint type_id, uint index) const
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_get_member_qualified_name(_cl, type_id, index, result));
@@ -369,7 +369,7 @@ abstract class ScCompiler
     }
 
     /// Sets the qualified member identifier for OpTypeStruct ID, member number "index".
-    void set_member_qualified_name(uint type_id, uint index, string name)
+    void setMemberQualifiedName(uint type_id, uint index, string name)
     {
         scEnforce(_cl, n.sc_compiler_set_member_qualified_name(_cl, type_id, index, name));
     }
@@ -377,34 +377,34 @@ abstract class ScCompiler
     // const Bitset &get_member_decoration_bitset(uint id, uint index) const;
 
     /// Returns whether the decoration has been applied to a member of a struct.
-    bool has_member_decoration(uint id, uint index, spv.Decoration decoration) const
+    bool hasMemberDecoration(uint id, uint index, spv.Decoration decoration) const
     {
         bool result = void;
         scEnforce(_cl, n.sc_compiler_has_member_decoration(_cl, id, index, decoration, result));
         return result;
     }
 
-    /// Similar to set_decoration, but for struct members.
-    void set_member_decoration(uint id, uint index, spv.Decoration decoration, uint argument = 0)
+    /// Similar to setDecoration, but for struct members.
+    void setMemberDecoration(uint id, uint index, spv.Decoration decoration, uint argument = 0)
     {
         scEnforce(_cl, n.sc_compiler_set_member_decoration(_cl, id, index, decoration, argument));
     }
 
-    void set_member_decoration_string(uint id, uint index,
+    void setMemberDecorationString(uint id, uint index,
             spv.Decoration decoration, string argument)
     {
         scEnforce(_cl, n.sc_compiler_set_member_decoration_string(_cl, id,
                 index, decoration, argument));
     }
 
-    /// Unsets a member decoration, similar to unset_decoration.
-    void unset_member_decoration(uint id, uint index, spv.Decoration decoration)
+    /// Unsets a member decoration, similar to unsetDecoration.
+    void unsetMemberDecoration(uint id, uint index, spv.Decoration decoration)
     {
         scEnforce(_cl, n.sc_compiler_unset_member_decoration(_cl, id, index, decoration));
     }
 
-    /// Gets the fallback name for a member, similar to get_fallback_name.
-    string get_fallback_member_name(uint index) const
+    /// Gets the fallback name for a member, similar to getFallbackName.
+    string getFallbackMemberName(uint index) const
     {
         import std.array : array;
         import std.range : repeat;
@@ -416,7 +416,7 @@ abstract class ScCompiler
     /// SPIR-V shader. The granularity of this analysis is per-member of a struct.
     /// This can be used for Buffer (UBO), BufferBlock/StorageBuffer (SSBO) and PushConstant blocks.
     /// ID is the Resource::id obtained from get_shader_resources().
-    BufferRange[] get_active_buffer_ranges(uint id) const
+    BufferRange[] getActiveBufferRanges(uint id) const
     {
         BufferRange[] result = void;
         scEnforce(_cl, n.sc_compiler_get_active_buffer_ranges(_cl, id, result));
@@ -424,7 +424,7 @@ abstract class ScCompiler
     }
 
     /// Returns the effective size of a buffer block.
-    size_t get_declared_struct_size(const(SPIRType)* struct_type) const
+    size_t getDeclaredStructSize(const(SPIRType)* struct_type) const
     {
         size_t result = void;
         scEnforce(_cl, n.sc_compiler_get_declared_struct_size(_cl, struct_type, result));
@@ -433,28 +433,28 @@ abstract class ScCompiler
 
     /// Returns the effective size of a buffer block, with a given array size
     /// for a runtime array.
-    /// SSBOs are typically declared as runtime arrays. get_declared_struct_size() will return 0 for the size.
+    /// SSBOs are typically declared as runtime arrays. getDeclaredStructSize() will return 0 for the size.
     /// This is not very helpful for applications which might need to know the array stride of its last member.
     /// This can be done through the API, but it is not very intuitive how to accomplish this, so here we provide a helper function
     /// to query the size of the buffer, assuming that the last member has a certain size.
-    /// If the buffer does not contain a runtime array, array_size is ignored, and the function will behave as
-    /// get_declared_struct_size().
+    /// If the buffer does not contain a runtime array, arraySize is ignored, and the function will behave as
+    /// getDeclaredStructSize().
     /// To get the array stride of the last member, something like:
-    /// get_declared_struct_size_runtime_array(type, 1) - get_declared_struct_size_runtime_array(type, 0) will work.
-    size_t get_declared_struct_size_runtime_array(const(SPIRType)* struct_type, size_t array_size) const
+    /// getDeclaredStructSizeRuntimeArray(type, 1) - getDeclaredStructSizeRuntimeArray(type, 0) will work.
+    size_t getDeclaredStructSizeRuntimeArray(const(SPIRType)* structType, size_t arraySize) const
     {
         size_t result = void;
         scEnforce(_cl, n.sc_compiler_get_declared_struct_size_runtime_array(_cl,
-                struct_type, array_size, result));
+                structType, arraySize, result));
         return result;
     }
 
     /// Returns the effective size of a buffer block struct member.
-    size_t get_declared_struct_member_size(const(SPIRType)* struct_type, uint index) const
+    size_t getDeclaredStructMemberSize(const(SPIRType)* structType, uint index) const
     {
         size_t result = void;
         scEnforce(_cl, n.sc_compiler_get_declared_struct_member_size(_cl,
-                struct_type, index, result));
+                structType, index, result));
         return result;
     }
 
@@ -465,8 +465,8 @@ abstract class ScCompiler
     /// storage classes are returned.
     ///
     /// To use the returned set as the filter for which variables are used during compilation,
-    /// this set can be moved to set_enabled_interface_variables().
-    uint[] get_active_interface_variables() const
+    /// this set can be moved to setEnabledInterfaceVariables().
+    uint[] getActiveInterfaceVariables() const
     {
         uint[] result = void;
         scEnforce(_cl, n.sc_compiler_get_active_interface_variables(_cl, result));
@@ -476,13 +476,13 @@ abstract class ScCompiler
     /// Sets the interface variables which are used during compilation.
     /// By default, all variables are used.
     /// Once set, compile() will only consider the set in active_variables.
-    void set_enabled_interface_variables(const(uint)[] active_variables)
+    void setEnabledInterfaceVariables(const(uint)[] activeVariables)
     {
-        scEnforce(_cl, n.sc_compiler_set_enabled_interface_variables(_cl, active_variables));
+        scEnforce(_cl, n.sc_compiler_set_enabled_interface_variables(_cl, activeVariables));
     }
 
     /// Query shader resources, use ids with reflection interface to modify or query binding points, etc.
-    ShaderResources get_shader_resources() const
+    ShaderResources getShaderResources() const
     {
         ShaderResources result = void;
         scEnforce(_cl, n.sc_compiler_get_shader_resources(_cl, result));
@@ -492,22 +492,22 @@ abstract class ScCompiler
     /// Query shader resources, but only return the variables which are part of active_variables.
     /// E.g.: get_shader_resources(get_active_variables()) to only return the variables which are statically
     /// accessed.
-    ShaderResources get_shader_resources(const(uint)[] active_variables) const
+    ShaderResources getShaderResources(const(uint)[] activeVariables) const
     {
         ShaderResources result = void;
-        scEnforce(_cl, n.sc_compiler_get_shader_resources_for_vars(_cl, active_variables, result));
+        scEnforce(_cl, n.sc_compiler_get_shader_resources_for_vars(_cl, activeVariables, result));
         return result;
     }
 
     /// Remapped variables are considered built-in variables and a backend will
     /// not emit a declaration for this variable.
     /// This is mostly useful for making use of builtins which are dependent on extensions.
-    void set_remapped_variable_state(uint id, bool remap_enable)
+    void setRemappedVariableState(uint id, bool remapEnable)
     {
-        scEnforce(_cl, n.sc_compiler_set_remapped_variable_state(_cl, id, remap_enable));
+        scEnforce(_cl, n.sc_compiler_set_remapped_variable_state(_cl, id, remapEnable));
     }
     /// ditto
-    bool get_remapped_variable_state(uint id) const
+    bool getRemappedVariableState(uint id) const
     {
         bool result = void;
         scEnforce(_cl, n.sc_compiler_get_remapped_variable_state(_cl, id, result));
@@ -517,12 +517,12 @@ abstract class ScCompiler
     /// For subpassInput variables which are remapped to plain variables,
     /// the number of components in the remapped
     /// variable must be specified as the backing type of subpass inputs are opaque.
-    void set_subpass_input_remapped_components(uint id, uint components)
+    void setSubpassInputRemappedComponents(uint id, uint components)
     {
         scEnforce(_cl, n.sc_compiler_set_subpass_input_remapped_components(_cl, id, components));
     }
     /// ditto
-    uint get_subpass_input_remapped_components(uint id) const
+    uint getSubpassInputRemappedComponents(uint id) const
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_get_subpass_input_remapped_components(_cl, id, result));
@@ -532,7 +532,7 @@ abstract class ScCompiler
     /// New variants of entry point query and reflection.
     /// Names for entry points in the SPIR-V module may alias if they belong to different execution models.
     /// To disambiguate, we must pass along with the entry point names the execution model.
-    EntryPoint[] get_entry_points_and_stages() const
+    EntryPoint[] getEntryPointsAndStages() const
     {
         EntryPoint[] result = void;
         scEnforce(_cl, n.sc_compiler_get_entry_points_and_stages(_cl, result));
@@ -540,34 +540,34 @@ abstract class ScCompiler
     }
 
     /// ditto
-    void set_entry_point(string entry, spv.ExecutionModel execution_model)
+    void setEntryPoint(string entry, spv.ExecutionModel executionModel)
     {
-        scEnforce(_cl, n.sc_compiler_set_entry_point(_cl, entry, execution_model));
+        scEnforce(_cl, n.sc_compiler_set_entry_point(_cl, entry, executionModel));
     }
 
     /// ditto
-    void rename_entry_point(string old_name, string new_name, spv.ExecutionModel execution_model)
+    void renameEntryPoint(string old_name, string new_name, spv.ExecutionModel executionModel)
     {
-        scEnforce(_cl, n.sc_compiler_rename_entry_point(_cl, old_name, new_name, execution_model));
+        scEnforce(_cl, n.sc_compiler_rename_entry_point(_cl, old_name, new_name, executionModel));
     }
 
     /// ditto
-    string get_cleansed_entry_point_name(string name, spv.ExecutionModel execution_model) const
+    string getCleansedEntryPointName(string name, spv.ExecutionModel executionModel) const
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_get_cleansed_entry_point_name(_cl, name,
-                execution_model, result));
+                executionModel, result));
         return result;
     }
 
     // const Bitset &get_execution_mode_bitset() const;
 
-    void unset_execution_mode(spv.ExecutionMode mode)
+    void unsetExecutionMode(spv.ExecutionMode mode)
     {
         scEnforce(_cl, n.sc_compiler_unset_execution_mode(_cl, mode));
     }
 
-    void set_execution_mode(spv.ExecutionMode mode, uint arg0 = 0, uint arg1 = 0, uint arg2 = 0)
+    void setExecutionMode(spv.ExecutionMode mode, uint arg0 = 0, uint arg1 = 0, uint arg2 = 0)
     {
         scEnforce(_cl, n.sc_compiler_set_execution_mode(_cl, mode, arg0, arg1, arg2));
     }
@@ -575,14 +575,14 @@ abstract class ScCompiler
     /// Gets argument for an execution mode (LocalSize, Invocations, OutputVertices).
     /// For LocalSize, the index argument is used to select the dimension (X = 0, Y = 1, Z = 2).
     /// For execution modes which do not have arguments, 0 is returned.
-    uint get_execution_mode_argument(spv.ExecutionMode mode, uint index = 0) const
+    uint getExecutionModeArgument(spv.ExecutionMode mode, uint index = 0) const
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_get_execution_mode_argument(_cl, mode, index, result));
         return result;
     }
     /// ditto
-    spv.ExecutionModel get_execution_model() const
+    spv.ExecutionModel getExecutionModel() const
     {
         spv.ExecutionModel result = void;
         scEnforce(_cl, n.sc_compiler_get_execution_model(_cl, result));
@@ -605,7 +605,7 @@ abstract class ScCompiler
     /// If the component is not a specialization constant, a zeroed out struct will be written.
     /// The return value is the constant ID of the builtin WorkGroupSize, but this is not expected to be useful
     /// for most use cases.
-    uint get_work_group_size_specialization_constants(out SpecializationConstant x,
+    uint getWorkGroupSizeSpecializationConstants(out SpecializationConstant x,
             out SpecializationConstant y, out SpecializationConstant z) const
     {
         uint result = void;
@@ -620,15 +620,15 @@ abstract class ScCompiler
     /// To workaround this, we must inject a dummy sampler which can be used to form a sampler2D at the call-site of
     /// texelFetch as necessary.
     ///
-    /// This must be called before build_combined_image_samplers().
-    /// build_combined_image_samplers() may refer to the ID returned by this method if the returned ID is non-zero.
+    /// This must be called before buildCombinedImageSamplers().
+    /// buildCombinedImageSamplers() may refer to the ID returned by this method if the returned ID is non-zero.
     /// The return value will be the ID of a sampler object if a dummy sampler is necessary, or 0 if no sampler object
     /// is required.
     ///
     /// If the returned ID is non-zero, it can be decorated with set/bindings as desired before calling compile().
-    /// Calling this function also invalidates get_active_interface_variables(), so this should be called
+    /// Calling this function also invalidates getActiveInterfaceVariables(), so this should be called
     /// before that function.
-    uint build_dummy_sampler_for_combined_images()
+    uint buildDummySamplerForCombinedImages()
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_build_dummy_sampler_for_combined_images(_cl, result));
@@ -642,7 +642,7 @@ abstract class ScCompiler
     ///
     /// This must be called before compile() if such remapping is desired.
     /// This call will add new sampled images to the SPIR-V,
-    /// so it will appear in reflection if get_shader_resources() is called after build_combined_image_samplers.
+    /// so it will appear in reflection if getShaderResources() is called after buildCombinedImageSamplers.
     ///
     /// If any image/sampler remapping was found, no separate image/samplers will appear in the decompiled output,
     /// but will still appear in reflection.
@@ -653,13 +653,13 @@ abstract class ScCompiler
     /// Combined image samplers originating from this set are always considered active variables.
     /// Arrays of separate samplers are not supported, but arrays of separate images are supported.
     /// Array of images + sampler -> Array of combined image samplers.
-    void build_combined_image_samplers()
+    void buildCombinedImageSamplers()
     {
         scEnforce(_cl, n.sc_compiler_build_combined_image_samples(_cl));
     }
 
     /// Gets a remapping for the combined image samplers.
-    CombinedImageSampler[] get_combined_image_samplers() const
+    CombinedImageSampler[] getCombinedImageSamplers() const
     {
         CombinedImageSampler[] result = void;
         scEnforce(_cl, n.sc_compiler_get_combined_image_samplers(_cl, result));
@@ -674,7 +674,7 @@ abstract class ScCompiler
     /// For composite types, the subconstants can be iterated over and modified.
     /// constant_type is the SPIRType for the specialization constant,
     /// which can be queried to determine which fields in the unions should be poked at.
-    SpecializationConstant[] get_specialization_constants() const
+    SpecializationConstant[] getSpecializationConstants() const
     {
         SpecializationConstant[] result = void;
         scEnforce(_cl, n.sc_compiler_get_specialization_constants(_cl, result));
@@ -684,7 +684,7 @@ abstract class ScCompiler
     // SPIRConstant &get_constant(uint id);
     // const SPIRConstant &get_constant(uint id) const;
 
-    uint get_current_id_bound() const
+    uint getCurrentIdBound() const
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_get_current_id_bound(_cl, result));
@@ -693,11 +693,11 @@ abstract class ScCompiler
 
     /// API for querying buffer objects.
     /// The type passed in here should be the base type of a resource, i.e.
-    /// get_type(resource.base_type_id)
+    /// getType(resource.baseTypeId)
     /// as decorations are set in the basic Block type.
     /// The type passed in here must have these decorations set, or an exception is raised.
     /// Only UBOs and SSBOs or sub-structs which are part of these buffer types will have these decorations set.
-    uint type_struct_member_offset(const(SPIRType)* type, uint index) const
+    uint typeStructMemberOffset(const(SPIRType)* type, uint index) const
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_type_struct_member_offset(_cl, type, index, result));
@@ -705,7 +705,7 @@ abstract class ScCompiler
     }
 
     /// ditto
-    uint type_struct_member_array_stride(const(SPIRType)* type, uint index) const
+    uint typeStructMemberArrayStride(const(SPIRType)* type, uint index) const
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_type_struct_member_array_stride(_cl, type, index, result));
@@ -713,7 +713,7 @@ abstract class ScCompiler
     }
 
     /// ditto
-    uint type_struct_member_matrix_stride(const(SPIRType)* type, uint index) const
+    uint typeStructMemberMatrixStride(const(SPIRType)* type, uint index) const
     {
         uint result = void;
         scEnforce(_cl, n.sc_compiler_type_struct_member_matrix_stride(_cl, type, index, result));
@@ -726,7 +726,7 @@ abstract class ScCompiler
     /// If the decoration was declared, sets the word_offset to an offset into the provided SPIR-V binary buffer and returns true,
     /// otherwise, returns false.
     /// If the decoration does not have any value attached to it (e.g. DecorationRelaxedPrecision), this function will also return false.
-    bool get_binary_offset_for_decoration(uint id, spv.Decoration decoration, out uint word_offset) const
+    bool getBinaryOffsetForDecoration(uint id, spv.Decoration decoration, out uint word_offset) const
     {
         bool result = void;
         scEnforce(_cl, n.sc_compiler_get_binary_offset_for_decoration(_cl, id,
@@ -746,7 +746,7 @@ abstract class ScCompiler
     /// Otherwise, this query is purely based on OpName identifiers as found in the SPIR-V module, and will
     /// only return true if OpSource was reported HLSL.
     /// To rely on this functionality, ensure that the SPIR-V module is not stripped.
-    bool buffer_is_hlsl_counter_buffer(uint id) const
+    bool bufferIsHlslCounterBuffer(uint id) const
     {
         bool result = void;
         scEnforce(_cl, n.sc_compiler_buffer_is_hlsl_counter_buffer(_cl, id, result));
@@ -759,15 +759,15 @@ abstract class ScCompiler
     /// Otherwise, this query is purely based on OpName identifiers as found in the SPIR-V module, and will
     /// only return true if OpSource was reported HLSL.
     /// To rely on this functionality, ensure that the SPIR-V module is not stripped.
-    bool buffer_get_hlsl_counter_buffer(uint id, out uint counter_id) const
+    bool bufferGetHlslCounterBuffer(uint id, out uint counterId)
     {
         bool result = void;
-        scEnforce(_cl, n.sc_compiler_buffer_get_hlsl_counter_buffer(_cl, id, counter_id, result));
+        scEnforce(_cl, n.sc_compiler_buffer_get_hlsl_counter_buffer(_cl, id, counterId, result));
         return result;
     }
 
     /// Gets the list of all SPIR-V Capabilities which were declared in the SPIR-V module.
-    spv.Capability[] get_declared_capabilities() const
+    spv.Capability[] getDeclaredCapabilities() const
     {
         spv.Capability[] result = void;
         scEnforce(_cl, n.sc_compiler_get_declared_capabilities(_cl, result));
@@ -775,7 +775,7 @@ abstract class ScCompiler
     }
 
     /// Gets the list of all SPIR-V extensions which were declared in the SPIR-V module.
-    string[] get_declared_extensions() const
+    string[] getDeclaredExtensions() const
     {
         string[] result = void;
         scEnforce(_cl, n.sc_compiler_get_declared_extensions(_cl, result));
@@ -795,7 +795,7 @@ abstract class ScCompiler
     /// ID is the name of a variable as returned by Resource::id, and must be a variable with a Block-like type.
     ///
     /// This also applies to HLSL cbuffers.
-    string get_remapped_declared_block_name(uint id) const
+    string getRemappedDeclaredBlockName(uint id) const
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_get_remapped_declared_block_name(_cl, id, result));
@@ -837,7 +837,7 @@ class ScCompilerGlsl : ScCompiler
 
     /// Returns the current string held in the conversion buffer. Useful for
     /// capturing what has been converted so far when compile() throws an error.
-    string get_partial_source()
+    string getPartialSource()
     {
         string result = void;
         scEnforce(_cl, n.sc_compiler_glsl_get_partial_source(glsl, result));
@@ -849,19 +849,19 @@ class ScCompilerGlsl : ScCompiler
     /// This can be combined with variable remapping.
     /// A new-line will be added.
     ///
-    /// While add_header_line() is a more generic way of adding arbitrary text to the header
-    /// of a GLSL file, require_extension() should be used when adding extensions since it will
+    /// While addHeaderLine() is a more generic way of adding arbitrary text to the header
+    /// of a GLSL file, requireExtension() should be used when adding extensions since it will
     /// avoid creating collisions with SPIRV-Cross generated extensions.
     ///
     /// Code added via add_header_line() is typically backend-specific.
-    void add_header_line(string str)
+    void addHeaderLine(string str)
     {
         scEnforce(_cl, n.sc_compiler_glsl_add_header_line(glsl, str));
     }
 
     /// Adds an extension which is required to run this shader, e.g.
     /// require_extension("GL_KHR_my_extension");
-    void require_extension(string ext)
+    void requireExtension(string ext)
     {
         scEnforce(_cl, n.sc_compiler_glsl_require_extension(glsl, ext));
     }
@@ -871,7 +871,7 @@ class ScCompilerGlsl : ScCompiler
     /// For this to work, all types in the block must be the same basic type, e.g. mixing vec2 and vec4 is fine, but
     /// mixing int and float is not.
     /// The name of the uniform array will be the same as the interface block name.
-    void flatten_buffer_block(uint id)
+    void flattenBufferBlock(uint id)
     {
         scEnforce(_cl, n.sc_compiler_glsl_flatten_buffer_block(glsl, id));
     }
