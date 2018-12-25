@@ -1,8 +1,6 @@
 .dub/
 *.exe
-*.lib
-*.a
-linker_flags.txt
-build/
 .vscode/
+/spirv_cross.lib
 example/spirv_cross_example
+build*/
