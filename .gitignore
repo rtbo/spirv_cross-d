@@ -4,3 +4,4 @@
 /spirv_cross.lib
 example/spirv_cross_example
 build*/
+/lib*.a
