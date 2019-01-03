@@ -1,7 +1,7 @@
 module spirv_cross;
 
 import n = spirv_cross.native;
-import spv = spirv_cross.spv;
+static import spv;
 
 class ScCompilationError : Exception
 {

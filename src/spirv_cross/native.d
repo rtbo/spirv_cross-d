@@ -3,7 +3,7 @@ module spirv_cross.native;
 package:
 
 import spirv_cross;
-import spv = spirv_cross.spv;
+static import spv;
 
 extern (C) nothrow:
 
