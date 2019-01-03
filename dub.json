@@ -10,6 +10,6 @@
     "lflags-posix-x86_64": [ "-L$PACKAGE_DIR/lib/posix-x86_64" ],
     "libs-posix": [ "stdc++", "spirv_cross_cpp" ],
 
-    "preBuildCommands-windows": [ "dub run --single $PACKAGE_DIR/build.d" ],
-	"lflags-windows": ["@${PACKAGE_DIR}/linker_flags.txt"]
+	"lflags-windows-x86_64": [ "$PACKAGE_DIR/lib/windows-x86_64/spirv_cross_cpp.lib" ],
+	"lflags-windows-x86_mscoff": [ "$PACKAGE_DIR/lib/windows-x86/spirv_cross_cpp.lib" ]
 }
