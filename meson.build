@@ -16,8 +16,10 @@ spirv_cross_inc = include_directories('src')
 
 spirv_cross_lib = library('spirv_cross_d',spirv_cross_sources,
     include_directories: spirv_cross_inc,
-    link_whole: spirv_cross_cpp_lib,
+    link_with: spirv_cross_cpp_lib,
     install: true,
+    version: meson.project_version(),
+    soversion: 0,
 )
 
 spirv_cross_dep = declare_dependency(
